@@ -8,10 +8,13 @@ import {
 } from "react-native";
 import { RegisterForm } from "../components/RegisterForm.component";
 import { useRegister } from "../hooks/useRegister.hook";
+import { LoaderScreen } from "@/core/components/LoaderScreen";
 
 export const RegisterScreen = () => {
   const { palette } = useThemeContext();
-  const { control, errors, handleRegister } = useRegister();
+  const { control, errors, handleRegister, isPending } = useRegister();
+
+  if (isPending) return <LoaderScreen />;
 
   return (
     <KeyboardAvoidingView

@@ -4,24 +4,18 @@ import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { useNewProduct } from "../hooks/useNewProduct.hook";
 
 export const NewProductScreen = () => {
-  const {
-    dataStates,
-    handleSubmit,
-    onChangeDescription,
-    onChangeTitle,
-    product,
-  } = useNewProduct();
+  const { errors, control, isValid, isPending, handleSubmitProduct } =
+    useNewProduct();
+
   return (
     <BackgroundView>
       <ProductFormHeader title="Crear producto" />
       <ProductForm
-        title={product.title}
-        onSubmit={handleSubmit}
-        onChangeTitle={onChangeTitle}
-        loading={dataStates.isLoading}
-        disabled={dataStates.isLoading}
-        description={product.description}
-        onChangeMessage={onChangeDescription}
+        errors={errors}
+        control={control}
+        loading={isPending}
+        disabled={!isValid}
+        onSubmit={handleSubmitProduct}
       />
     </BackgroundView>
   );

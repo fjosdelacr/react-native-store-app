@@ -1,31 +1,19 @@
-import { useState } from "react";
 import { useRouter } from "expo-router";
 import { registerUseCase } from "../../di/auth.dependencies";
-import { UserEntity } from "../../domain/entities/user.entity";
 import { useForm } from "react-hook-form";
 import {
   RegisterDefaultValue,
   RegisterSchema,
+  RegisterSchemaType,
 } from "../schemas/register.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const DATA_STATES_DEFAULT = {
-  isLoading: false,
-  isError: false,
-  data: null,
-};
-
-interface DataStates {
-  isLoading: boolean;
-  isError: boolean;
-  data: UserEntity | null;
-}
+import { useMutation } from "@tanstack/react-query";
+import { Alert } from "react-native";
 
 export const useRegister = () => {
   const router = useRouter();
   const {
     control,
-    watch,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -33,22 +21,22 @@ export const useRegister = () => {
     defaultValues: RegisterDefaultValue,
     resolver: zodResolver(RegisterSchema),
   });
-  const [dataStates, setDataStates] = useState<DataStates>(DATA_STATES_DEFAULT);
 
-  const userEmail = watch("email");
-  const userPassword = watch("password");
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["auth"],
+    mutationFn: ({ email, password }: RegisterSchemaType) =>
+      registerUseCase.execute(email, password),
+  });
 
-  const onSubmit = async () => {
-    setDataStates({ ...DATA_STATES_DEFAULT, isLoading: true });
-    try {
-      const result = await registerUseCase.execute(userEmail, userPassword);
-      if (result) {
-        setDataStates({ ...DATA_STATES_DEFAULT, data: result });
-        router.navigate("/");
-      }
-    } catch (error) {
-      setDataStates({ ...DATA_STATES_DEFAULT, isError: true });
-    }
+  const onSubmit = (data: RegisterSchemaType) => {
+    mutate(data, {
+      onSuccess: () => {
+        router.replace("/products");
+      },
+      onError: (error) => {
+        Alert.alert(error.name, error.message);
+      },
+    });
   };
 
   const handleRegister = handleSubmit(onSubmit);
@@ -56,7 +44,7 @@ export const useRegister = () => {
   return {
     errors,
     control,
-    dataStates,
+    isPending,
     handleRegister,
   };
 };

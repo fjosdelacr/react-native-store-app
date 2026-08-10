@@ -4,7 +4,7 @@ import { ProductDtoRequest, ProductDtoResponse } from "../dtos/product.dto";
 export class ProductModel implements ProductEntity {
   constructor(
     public title: string,
-    public description: string,
+    public description?: string,
     public id?: string,
   ) {}
 

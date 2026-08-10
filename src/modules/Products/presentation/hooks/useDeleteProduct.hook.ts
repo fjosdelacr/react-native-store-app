@@ -1,54 +1,43 @@
-import { FC, useState } from "react";
-import { ProductEntity } from "../../domain/entities/product.entity";
+import { useState } from "react";
 import { deleteProductUseCase } from "../../di/product.dependencies";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Alert } from "react-native";
 
-const DATA_STATES_DEFAULT = {
-  isLoading: false,
-  isError: false,
-  data: null,
-};
-
-interface DataStates {
-  isLoading: boolean;
-  isError: boolean;
-  data: ProductEntity | null;
-}
-
-interface DeleteProductHookProps {
-  reloadProducts: () => void;
-}
-
-export const useDeleteProduct = ({
-  reloadProducts,
-}: DeleteProductHookProps) => {
-  const [dataStates, setDataStates] = useState<DataStates>(DATA_STATES_DEFAULT);
-  const [productId, setProductId] = useState<string | undefined>(undefined);
+export const useDeleteProduct = () => {
+  const [productId, setProductId] = useState<string>("");
   const [isVisibleModal, setIsVisibleModal] = useState(false);
+  const queryClient = useQueryClient();
+
   const hiddenModal = () => setIsVisibleModal(false);
   const showModal = () => setIsVisibleModal(true);
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["products"],
+    mutationFn: (productId: string) => deleteProductUseCase.execute(productId),
+  });
 
   const handleDelete = (id: string) => {
     setProductId(id);
     showModal();
   };
 
-  const confirmDelete = async () => {
-    setDataStates({ ...DATA_STATES_DEFAULT, isLoading: true });
-    try {
-      if (!productId) throw new Error("Product ID is required");
-      const result = await deleteProductUseCase.execute(productId);
-      reloadProducts();
-      setDataStates({ ...DATA_STATES_DEFAULT, data: result });
-    } catch (error) {
-      setDataStates({ ...DATA_STATES_DEFAULT, isError: true });
-    } finally {
-      hiddenModal();
-      setProductId(undefined);
-    }
+  const confirmDelete = () => {
+    mutate(productId, {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["products"],
+        });
+      },
+      onError: (error) => {
+        Alert.alert(error.name, error.message);
+      },
+    });
+    hiddenModal();
+    setProductId("");
   };
 
   return {
-    deleteStatus: dataStates,
+    isPending,
     hiddenModal,
     handleDelete,
     confirmDelete,

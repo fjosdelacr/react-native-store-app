@@ -1,6 +1,7 @@
 import { CustomButton } from "@/core/components/CustomButton.component";
 import { InputField } from "@/core/components/InputField.components";
 import { FC } from "react";
+import { Control, FieldErrors } from "react-hook-form";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,25 +11,22 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { ProductSchemaType } from "../schemas/product.schema";
 
 interface ProductFormProps {
-  title?: string;
-  description?: string;
-  onSubmit: () => void;
-  disabled?: boolean;
   loading?: boolean;
-  onChangeTitle: (title: string) => void;
-  onChangeMessage: (description: string) => void;
+  disabled?: boolean;
+  onSubmit: () => void;
+  control: Control<ProductSchemaType>;
+  errors: FieldErrors<ProductSchemaType>;
 }
 
 export const ProductForm: FC<ProductFormProps> = ({
-  title,
-  onSubmit,
-  description,
+  errors,
+  control,
   loading,
   disabled,
-  onChangeTitle,
-  onChangeMessage,
+  onSubmit,
 }) => {
   return (
     <KeyboardAvoidingView
@@ -43,19 +41,21 @@ export const ProductForm: FC<ProductFormProps> = ({
         >
           <View style={styles.formContainer}>
             <InputField
-              onChangeText={onChangeTitle}
-              value={title}
+              name="title"
               label="Título"
+              control={control}
+              error={errors.title}
               placeholder="Escribe un título"
             />
             <InputField
-              value={description}
-              onChangeText={onChangeMessage}
-              label="Mensaje"
-              placeholder="¿Qué está pasando?"
               multiline
+              label="Mensaje"
+              control={control}
+              name="description"
               numberOfLines={600}
               textAlignVertical="top"
+              error={errors.description}
+              placeholder="¿Qué está pasando?"
             />
           </View>
           <View style={{ marginTop: 20 }}>

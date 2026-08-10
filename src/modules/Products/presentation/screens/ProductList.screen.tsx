@@ -16,14 +16,14 @@ import { useDeleteProduct } from "../hooks/useDeleteProduct.hook";
 
 export const ProductListScreen = () => {
   const { palette } = useThemeContext();
-  const { dataStates, handleEdit, handleAddPress, loadData } = useProductList();
+  const { isFetching, products, handleEdit, handleAddPress } = useProductList();
   const {
-    confirmDelete,
-    handleDelete,
+    isPending,
     hiddenModal,
+    handleDelete,
+    confirmDelete,
     isVisibleModal,
-    deleteStatus,
-  } = useDeleteProduct({ reloadProducts: loadData });
+  } = useDeleteProduct();
 
   const renderItem = ({ item }: ListRenderItemInfo<ProductEntity>) => {
     return (
@@ -36,7 +36,7 @@ export const ProductListScreen = () => {
     );
   };
 
-  if (dataStates.isLoading || deleteStatus.isLoading) {
+  if (isFetching || isPending) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator
@@ -56,7 +56,7 @@ export const ProductListScreen = () => {
           onPress={handleAddPress}
         />
         <FlatList
-          data={dataStates.data}
+          data={products}
           renderItem={renderItem}
           contentContainerStyle={{ gap: 20 }}
           showsVerticalScrollIndicator={false}

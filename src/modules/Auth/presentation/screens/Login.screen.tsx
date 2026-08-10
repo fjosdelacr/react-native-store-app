@@ -8,10 +8,13 @@ import { LoginForm } from "../components/LoginForm.component";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
 import { useLogin } from "../hooks/useLogin.hook";
+import { LoaderScreen } from "@/core/components/LoaderScreen";
 
 export const LoginScreen = () => {
   const { palette } = useThemeContext();
-  const { handleLogin, control, errors } = useLogin();
+  const { handleLogin, control, errors, isPending } = useLogin();
+
+  if (isPending) return <LoaderScreen />;
 
   return (
     <KeyboardAvoidingView
