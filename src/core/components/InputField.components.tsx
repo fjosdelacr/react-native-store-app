@@ -1,53 +1,77 @@
 import {
-  StyleSheet,
+  View,
   Text,
   TextInput,
+  StyleSheet,
   TextInputProps,
-  View,
 } from "react-native";
 import { useThemeContext } from "../contexts/theme.context";
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldPath,
+  FieldValues,
+} from "react-hook-form";
 
-interface InputFieldProps extends TextInputProps {
+interface InputFieldProps<T extends FieldValues> extends TextInputProps {
   label?: string;
+  control: Control<T>;
+  name: FieldPath<T>;
+  error?: FieldError;
 }
 
-export const InputField = ({ label, ...props }: InputFieldProps) => {
+export const InputField = <T extends FieldValues>({
+  name,
+  label,
+  error,
+  control,
+  ...props
+}: InputFieldProps<T>) => {
   const { palette } = useThemeContext();
 
   const renderInput = () => {
     return (
-      <TextInput
-        {...props}
-        style={[
-          styles.input,
-          {
-            borderColor: palette.colors.border,
-            height: props.multiline ? 250 : undefined,
-          },
-        ]}
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            {...props}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            value={value}
+            style={[
+              styles.input,
+              {
+                borderColor: palette.colors.border,
+                height: props.multiline ? 250 : undefined,
+              },
+            ]}
+          />
+        )}
       />
     );
   };
 
-  if (label && label.length > 0) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.label}>{label}</Text>
-        {renderInput()}
-      </View>
-    );
-  }
-
-  return renderInput();
+  return (
+    <View>
+      {label && <Text style={styles.label}>{label}</Text>}
+      {renderInput()}
+      {error?.message && (
+        <Text style={[styles.error, { color: palette.colors.error }]}>
+          {error.message}
+        </Text>
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 8,
-  },
   label: {
     fontSize: 16,
     fontWeight: "500",
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
@@ -55,5 +79,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 12,
     fontSize: 16,
+  },
+  error: {
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: "400",
   },
 });

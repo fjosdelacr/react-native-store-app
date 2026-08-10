@@ -3,23 +3,17 @@ import { InputField } from "@/core/components/InputField.components";
 import { useThemeContext } from "@/core/contexts/theme.context";
 import { Link } from "expo-router";
 import { FC } from "react";
+import { Control, FieldErrors } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
+import { LoginSchemaType } from "../schemas/login.schema";
 
 interface LoginFormProps {
-  email: string;
-  password: string;
-  onChangeEmail: (value: string) => void;
-  onChangePassword: (value: string) => void;
   onSubmit: VoidFunction;
+  control: Control<LoginSchemaType>;
+  errors: FieldErrors<LoginSchemaType>
 }
 
-export const LoginForm: FC<LoginFormProps> = ({
-  email,
-  onChangeEmail,
-  onChangePassword,
-  password,
-  onSubmit,
-}) => {
+export const LoginForm: FC<LoginFormProps> = ({ control, onSubmit, errors }) => {
   const { palette } = useThemeContext();
 
   return (
@@ -30,17 +24,19 @@ export const LoginForm: FC<LoginFormProps> = ({
       </Text>
       <View style={styles.inputGroup}>
         <InputField
+          name="email"
           label="Correo"
+          control={control}
+          error={errors.email}
           placeholder="Ingresar correo"
-          value={email}
-          onChangeText={onChangeEmail}
         />
         <InputField
-          label="Contraseña"
+          name="password"
           secureTextEntry
+          control={control}
+          label="Contraseña"
+          error={errors.password}
           placeholder="Ingresar contraseña"
-          value={password}
-          onChangeText={onChangePassword}
         />
       </View>
       <CustomButton title="Ingresar" onPress={onSubmit} />

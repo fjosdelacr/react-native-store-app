@@ -2,6 +2,12 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import { registerUseCase } from "../../di/auth.dependencies";
 import { UserEntity } from "../../domain/entities/user.entity";
+import { useForm } from "react-hook-form";
+import {
+  RegisterDefaultValue,
+  RegisterSchema,
+} from "../schemas/register.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const DATA_STATES_DEFAULT = {
   isLoading: false,
@@ -17,17 +23,25 @@ interface DataStates {
 
 export const useRegister = () => {
   const router = useRouter();
-  const [user, setUser] = useState({ email: "", password: "" });
+  const {
+    control,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: RegisterDefaultValue,
+    resolver: zodResolver(RegisterSchema),
+  });
   const [dataStates, setDataStates] = useState<DataStates>(DATA_STATES_DEFAULT);
 
-  const handleChange = (field: "email" | "password", value: string) => {
-    setUser((prev) => ({ ...prev, [field]: value }));
-  };
+  const userEmail = watch("email");
+  const userPassword = watch("password");
 
-  const handleRegister = async () => {
+  const onSubmit = async () => {
     setDataStates({ ...DATA_STATES_DEFAULT, isLoading: true });
     try {
-      const result = await registerUseCase.execute(user.email, user.password);
+      const result = await registerUseCase.execute(userEmail, userPassword);
       if (result) {
         setDataStates({ ...DATA_STATES_DEFAULT, data: result });
         router.navigate("/");
@@ -37,10 +51,12 @@ export const useRegister = () => {
     }
   };
 
+  const handleRegister = handleSubmit(onSubmit);
+
   return {
-    user,
+    errors,
+    control,
     dataStates,
-    handleChange,
     handleRegister,
   };
 };

@@ -1,12 +1,17 @@
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+} from "react-native";
 import { RegisterForm } from "../components/RegisterForm.component";
 import { useRegister } from "../hooks/useRegister.hook";
 
 export const RegisterScreen = () => {
   const { palette } = useThemeContext();
-  const { user, handleChange, handleRegister } = useRegister();
+  const { control, errors, handleRegister } = useRegister();
 
   return (
     <KeyboardAvoidingView
@@ -23,11 +28,9 @@ export const RegisterScreen = () => {
       >
         <BackgroundView style={{ paddingTop: 50 }}>
           <RegisterForm
-            email={user.email}
-            password={user.password}
+            errors={errors}
+            control={control}
             onSubmit={handleRegister}
-            onChangeEmail={(value) => handleChange("email", value)}
-            onChangePassword={(value) => handleChange("password", value)}
           />
         </BackgroundView>
       </Pressable>

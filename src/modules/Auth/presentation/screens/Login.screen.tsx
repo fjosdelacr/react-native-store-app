@@ -1,4 +1,9 @@
-import { Keyboard, Platform, KeyboardAvoidingView, Pressable } from "react-native";
+import {
+  Keyboard,
+  Platform,
+  KeyboardAvoidingView,
+  Pressable,
+} from "react-native";
 import { LoginForm } from "../components/LoginForm.component";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
@@ -6,7 +11,7 @@ import { useLogin } from "../hooks/useLogin.hook";
 
 export const LoginScreen = () => {
   const { palette } = useThemeContext();
-  const { user, handleChange, handleLogin } = useLogin();
+  const { handleLogin, control, errors } = useLogin();
 
   return (
     <KeyboardAvoidingView
@@ -16,19 +21,13 @@ export const LoginScreen = () => {
       <Pressable
         style={{
           flex: 1,
-          backgroundColor: palette.colors.primary.light,
           paddingTop: 150,
+          backgroundColor: palette.colors.primary.light,
         }}
         onPress={Keyboard.dismiss}
       >
         <BackgroundView style={{ paddingTop: 50 }}>
-          <LoginForm
-            email={user.email}
-            password={user.password}
-            onChangeEmail={(value) => handleChange("email", value)}
-            onChangePassword={(value) => handleChange("password", value)}
-            onSubmit={handleLogin}
-          />
+          <LoginForm errors={errors} control={control} onSubmit={handleLogin} />
         </BackgroundView>
       </Pressable>
     </KeyboardAvoidingView>

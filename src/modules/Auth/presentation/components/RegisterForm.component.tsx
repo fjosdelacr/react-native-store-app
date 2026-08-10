@@ -4,21 +4,19 @@ import { Link } from "expo-router";
 import { CustomButton } from "@/core/components/CustomButton.component";
 import { InputField } from "@/core/components/InputField.components";
 import { useThemeContext } from "@/core/contexts/theme.context";
+import { Control, FieldErrors } from "react-hook-form";
+import { RegisterSchemaType } from "../schemas/register.schema";
 
 interface RegisterFormProps {
-  email: string;
-  password: string;
-  onChangeEmail: (value: string) => void;
-  onChangePassword: (value: string) => void;
   onSubmit: VoidFunction;
+  control: Control<RegisterSchemaType>;
+  errors: FieldErrors<RegisterSchemaType>;
 }
 
 export const RegisterForm: FC<RegisterFormProps> = ({
-  email,
-  password,
+  errors,
+  control,
   onSubmit,
-  onChangeEmail,
-  onChangePassword,
 }) => {
   const { palette } = useThemeContext();
 
@@ -30,24 +28,27 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       </Text>
       <View style={styles.inputGroup}>
         <InputField
+          name="email"
           label="Correo"
+          control={control}
+          error={errors.email}
           placeholder="Ingresar correo"
-          value={email}
-          onChangeText={onChangeEmail}
         />
         <InputField
+          name="password"
+          secureTextEntry
+          control={control}
           label="Contraseña"
-          secureTextEntry
+          error={errors.password}
           placeholder="Ingresar contraseña"
-          value={password}
-          onChangeText={onChangePassword}
         />
         <InputField
-          label="Confirmar Contraseña"
           secureTextEntry
+          control={control}
+          name="verifyPassword"
+          label="Confirmar Contraseña"
+          error={errors.verifyPassword}
           placeholder="Ingresar contraseña"
-          value={password}
-          onChangeText={onChangePassword}
         />
       </View>
       <CustomButton title="Registrarse" onPress={onSubmit} />
